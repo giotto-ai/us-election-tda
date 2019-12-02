@@ -1,0 +1,6 @@
+# External
+*.DS_Store
+
+# Folders
+*.ipynb_checkpoints
+*__pycache__
