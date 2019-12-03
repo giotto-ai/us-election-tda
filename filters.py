@@ -18,3 +18,11 @@ class LpFilter(Filter):
 
     def __call__(self, data):
         return np.sum(np.abs(data) ** self.p, axis=1) ** (self.k / self.p)
+
+
+class LogisticRegressionFilter(Filter):
+    def __init__(self, lr):
+        self.lr = lr
+
+    def __call__(self, data):
+        return self.lr.predict_proba(data)[:, 1]
