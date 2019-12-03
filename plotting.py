@@ -60,7 +60,8 @@ def mapper_plotly_plot(mapper, df, pos, size, node_color, node_text,
             showscale=True,
             colorscale=colorscale,
             reversescale=True,
-            color=[],
+            line=dict(width=.5, color='#888'),
+            color=node_color,
             size=size,
             cmax=1,
             cmin=0,
@@ -70,11 +71,8 @@ def mapper_plotly_plot(mapper, df, pos, size, node_color, node_text,
                 xanchor='left',
                 titleside='right'
             ),
-            line_width=2))
-
-    node_trace.marker.color = node_color
-
-    node_trace.text = node_text
+            line_width=2),
+        text=node_text)
 
     fig = go.Figure(data=[edge_trace, node_trace],
                     layout=go.Layout(showlegend=False,
