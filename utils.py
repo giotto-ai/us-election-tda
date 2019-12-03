@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.colors
 
+from functools import reduce
+import operator
+import networkx as nx
+
+from plotting import mapper_plotly_plot
+
 import sys
 sys.path.append('..')
 import lmapper as lm
@@ -49,3 +55,54 @@ def get_county_plot_data(data, mapper, df, col, cmap):
 
     return ((map_col['color_sum'] / map_col['n_counties']).tolist(),
             colors)
+
+
+def get_unique_cluster_vals(mapper, cluster):
+    '''
+        return indices belonging only to a cluster
+    '''
+    return list(set(list(dict(mapper._nodes.items()).values())[cluster]
+                    ._labels)
+                .difference(set(reduce(operator.iconcat,
+                                       list(map(lambda x: list(x._labels),
+                                                list(dict(mapper._nodes
+                                                          .items())
+                                                     .values())[0:cluster] +
+                                                list(dict(mapper._nodes
+                                                          .items())
+                                                     .values())[cluster + 1:])
+                                            ), []))))
+
+
+def get_weighted_electors_plot(mapper, df, seed=0):
+    col = 'winner'
+    pos = nx.spring_layout(mapper.complex._graph, seed=seed)
+    size = list(map(lambda x: 12 + x / min(get_node_size(mapper)),
+                    get_node_size(mapper)))
+
+    node_color = list(map(lambda x, y: x / y,
+                          get_mean_node(mapper,
+                                        df=pd.DataFrame(df['winner'] *
+                                                        df['n_electors'],
+                                                        columns=['weighted_' +
+                                                                 'winner']),
+                                        col='weighted_winner'),
+                          get_mean_node(mapper, df=df, col='n_electors')))
+
+    node_text = []
+    for node, pct, weighted_electors in zip(list(dict(mapper._nodes.items())
+                                                 .values()),
+                                            get_mean_node(mapper, df=df,
+                                                          col=col),
+                                            node_color):
+        node_text.append(f'# of counties: {len(node._labels)}<br>' +
+                         f'Percentage voted for republican:' +
+                         f' {round(100 * pct, 2)}<br>' +
+                         f'Mean weighted number of electors:' +
+                         f'{weighted_electors}')
+
+    cmin = np.min(node_color)
+    cmax = np.max(node_color)
+    mapper_plotly_plot(mapper, df, pos, size, node_color, node_text, cmin=cmin,
+                       cmax=cmax, colorscale='RdBu',
+                       title='Percentage voted for republican')
