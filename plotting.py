@@ -7,7 +7,7 @@ from functools import reduce
 import operator
 
 
-def nx_plot_mapper(mapper, node_color=None, cmap='autumn',
+def mapper_nx_plot(mapper, node_color=None, cmap='autumn',
                    node_size=None, pos=None, with_labels=False,
                    labels=None):
     nx.draw(mapper.complex._graph,
@@ -31,8 +31,9 @@ def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
     fig.show()
 
 
-def plot_mapper(mapper, df, pos, size, node_color, node_text, col='winner',
-                colorscale='RdBu', title='Percentage voted for republican'):
+def mapper_plotly_plot(mapper, df, pos, size, node_color, node_text,
+                       col='winner', colorscale='RdBu',
+                       title='Percentage voted for republican'):
     edge_x = list(reduce(operator.iconcat,
                   map(lambda x: [pos[x[0]][0],
                                  pos[x[1]][0], None],
