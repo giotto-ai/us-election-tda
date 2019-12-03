@@ -4,11 +4,13 @@ import plotly.figure_factory as ff
 
 
 def nx_plot_mapper(mapper, node_color=None, cmap='autumn',
-                   node_size=None, pos=None):
+                   node_size=None, pos=None, with_labels=False,
+                   labels=None):
     nx.draw(mapper.complex._graph,
             node_color=node_color,
             cmap=cmap, vmin=np.min(node_color), vmax=np.max(node_color),
-            node_size=node_size, pos=pos)
+            node_size=node_size, pos=pos, with_labels=with_labels,
+            labels=labels)
 
 
 def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
