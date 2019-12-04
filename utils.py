@@ -197,3 +197,24 @@ def split_data_by_year(data, df):
                 map(lambda x: data[x, :],
                     map(lambda x: df[df['year'] == x].index,
                         df['year'].unique()))))
+
+
+def get_colored_mapper_plot(mapper, df, col, seed=0, size_offset=12):
+    pos = nx.spring_layout(mapper.complex._graph, seed=seed)
+
+    node_size = list(map(lambda x: size_offset + x /
+                         min(get_node_size(mapper)),
+                     get_node_size(mapper)))
+    node_text = []
+    for node, pct in zip(list(dict(mapper._nodes.items()).values()),
+                         get_mean_node(mapper, df=df, col=col)):
+        node_text.append(f'# of counties: {len(node._labels)}<br>' +
+                         f'Mean value: {round(pct, 2)}')
+    node_color = get_mean_node(mapper, df=df, col=col)
+
+    cmin = np.min(node_color)
+    cmax = np.max(node_color)
+    mapper_plotly_plot(mapper=mapper, df=df,
+                       pos=pos, size=node_size, node_color=node_color,
+                       cmin=cmin, cmax=cmax, node_text=node_text,
+                       colorscale='RdBu', title=col)
