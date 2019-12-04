@@ -17,12 +17,12 @@ from lmapper.cluster import Linkage
 
 def get_node_size(mapper, offset=50):
     return list(map(lambda x: len(x._labels) + offset,
-                    list(dict(mapper._nodes.items()).values())))
+                    dict(mapper._nodes.items()).values()))
 
 
 def get_mean_node(mapper, df, col):
     return list(map(lambda x: df.iloc[x._labels][col].mean(),
-                    list(dict(mapper._nodes.items()).values())))
+                    dict(mapper._nodes.items()).values()))
 
 
 def get_mapper(filtr, nintervals, overlap, method,
