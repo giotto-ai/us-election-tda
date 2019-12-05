@@ -27,6 +27,11 @@ def get_mean_node(mapper, df, col):
                     dict(mapper._nodes.items()).values()))
 
 
+def get_sum_node(mapper, df, col):
+    return list(map(lambda x: df.iloc[x._labels][col].sum(),
+                    dict(mapper._nodes.items()).values()))
+
+
 def get_mapper(filtr, nintervals, overlap, method,
                metric, cutoff, data):
     cover = UniformCover(nintervals=nintervals,
@@ -39,8 +44,8 @@ def get_mapper(filtr, nintervals, overlap, method,
     return mapper
 
 
-def get_county_plot_data(data, mapper, df, col, cmap):
-    map_col = (pd.DataFrame(np.zeros((data.shape[0],
+def get_county_plot_data(mapper, df, col, cmap):
+    map_col = (pd.DataFrame(np.zeros((df.shape[0],
                                       2)),
                             columns=['color_sum', 'n_counties'])
                .astype({'n_counties': 'int'}))
@@ -83,31 +88,32 @@ def get_weighted_electors_plot(mapper, df, seed=0, size_offset=12):
                     get_node_size(mapper)))
 
     node_color = list(map(lambda x, y: x / y,
-                          get_mean_node(mapper,
-                                        df=pd.DataFrame(df['winner'] *
-                                                        df['n_electors'],
-                                                        columns=['weighted_' +
-                                                                 'winner']),
-                                        col='weighted_winner'),
-                          get_mean_node(mapper, df=df, col='n_electors')))
+                          get_sum_node(mapper,
+                                       df=pd.DataFrame(df['winner'] *
+                                                       df['n_electors'],
+                                                       columns=['weighted_' +
+                                                                'winner']),
+                                       col='weighted_winner'),
+                          get_sum_node(mapper, df=df, col='n_electors')))
 
     node_text = []
-    for node, pct, weighted_electors in zip(list(dict(mapper._nodes.items())
-                                                 .values()),
-                                            get_mean_node(mapper, df=df,
-                                                          col=col),
-                                            node_color):
+    for node, pct, weighted_electors, n_electors \
+        in zip(list(dict(mapper._nodes.items()).values()),
+               get_mean_node(mapper, df=df, col=col),
+               node_color, get_sum_node(mapper, df, 'n_electors')):
         node_text.append(f'# of counties: {len(node._labels)}<br>' +
                          f'Percentage voted for republican:' +
                          f' {round(100 * pct, 2)}<br>' +
-                         f'Mean weighted number of electors:' +
-                         f'{weighted_electors}')
+                         f'Total (weighted) number of electors:'
+                         f'{round(n_electors, 2)}<br>' +
+                         f'Percentage of weighted, republican electors:' +
+                         f'{round(100 * weighted_electors, 2)}')
 
     cmin = np.min(node_color)
     cmax = np.max(node_color)
     mapper_plotly_plot(mapper, df, pos, size, node_color, node_text, cmin=cmin,
                        cmax=cmax, colorscale='RdBu',
-                       title='Percentage Voted for Republican')
+                       title='Percentage of Weighted Republican Electors')
 
 
 def get_cols_by_type():
@@ -206,10 +212,13 @@ def get_colored_mapper_plot(mapper, df, col, seed=0, size_offset=12):
                          min(get_node_size(mapper)),
                      get_node_size(mapper)))
     node_text = []
-    for node, pct in zip(list(dict(mapper._nodes.items()).values()),
-                         get_mean_node(mapper, df=df, col=col)):
-        node_text.append(f'# of counties: {len(node._labels)}<br>' +
-                         f'Mean value: {round(pct, 2)}')
+    for node_id, node, pct in zip(range(len(dict(mapper._nodes.items())
+                                            .values())),
+                                  dict(mapper._nodes.items()).values(),
+                                  get_mean_node(mapper, df=df, col=col)):
+        node_text.append(f'Node id: {node_id}<br>' +
+                         f'Number of counties: {len(node._labels)}<br>' +
+                         f'Mean {col}: {round(pct, 2)}')
     node_color = get_mean_node(mapper, df=df, col=col)
 
     cmin = np.min(node_color)
