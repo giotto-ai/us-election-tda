@@ -111,7 +111,7 @@ def get_weighted_electors_plot(mapper, df, seed=0, size_offset=12):
 
     cmin = np.min(node_color)
     cmax = np.max(node_color)
-    mapper_plotly_plot(mapper, df, pos, size, node_color, node_text, cmin=cmin,
+    mapper_plotly_plot(mapper, pos, size, node_color, node_text, cmin=cmin,
                        cmax=cmax, colorscale='RdBu',
                        title='Percentage of Weighted Republican Electors')
 
@@ -223,7 +223,7 @@ def get_colored_mapper_plot(mapper, df, col, seed=0, size_offset=12):
 
     cmin = np.min(node_color)
     cmax = np.max(node_color)
-    mapper_plotly_plot(mapper=mapper, df=df,
-                       pos=pos, size=node_size, node_color=node_color,
+    mapper_plotly_plot(mapper=mapper, pos=pos, size=node_size,
+                       node_color=node_color,
                        cmin=cmin, cmax=cmax, node_text=node_text,
                        colorscale='RdBu', title=col)
