@@ -31,7 +31,7 @@ def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
     fig.show()
 
 
-def mapper_plotly_plot(mapper, df, pos, size, node_color, node_text,
+def mapper_plotly_plot(mapper, pos, size, node_color, node_text,
                        colorscale='RdBu', cmin=0, cmax=1,
                        title='Percentage voted for republican'):
     edge_x = list(reduce(operator.iconcat,
