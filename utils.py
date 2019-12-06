@@ -7,6 +7,7 @@ import operator
 import networkx as nx
 
 from plotting import mapper_plotly_plot
+from plotting import mapper_plotly_3dplot
 
 from sklearn.preprocessing import StandardScaler
 
@@ -228,3 +229,27 @@ def get_colored_mapper_plot(mapper, df, col, seed=0, size_offset=12):
                        node_color=node_color,
                        cmin=cmin, cmax=cmax, node_text=node_text,
                        colorscale='RdBu', legend_title=col)
+
+
+def get_colored_mapper_3dplot(mapper, df, col, seed=0, size_offset=12):
+    pos = nx.spring_layout(mapper.complex._graph, seed=seed, dim=3)
+
+    node_size = list(map(lambda x: size_offset + x /
+                         min(get_node_size(mapper)),
+                     get_node_size(mapper)))
+    node_text = []
+    for node_id, node, pct in zip(range(len(dict(mapper._nodes.items())
+                                            .values())),
+                                  dict(mapper._nodes.items()).values(),
+                                  get_mean_node(mapper, df=df, col=col)):
+        node_text.append(f'Node id: {node_id}<br>' +
+                         f'Number of counties: {len(node._labels)}<br>' +
+                         f'Mean {col}: {round(pct, 2)}')
+    node_color = get_mean_node(mapper, df=df, col=col)
+
+    cmin = np.min(node_color)
+    cmax = np.max(node_color)
+    mapper_plotly_3dplot(graph=mapper.complex._graph, pos=pos, size=node_size,
+                         node_color=node_color,
+                         cmin=cmin, cmax=cmax, node_text=node_text,
+                         colorscale='RdBu', legend_title=col)
