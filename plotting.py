@@ -31,16 +31,16 @@ def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
     fig.show()
 
 
-def mapper_plotly_plot(mapper, pos, size, node_color, node_text,
+def mapper_plotly_plot(graph, pos, size, node_color, node_text,
                        colorscale='RdBu', cmin=0, cmax=1, legend_title=''):
     edge_x = list(reduce(operator.iconcat,
                   map(lambda x: [pos[x[0]][0],
                                  pos[x[1]][0], None],
-                      mapper.complex._graph.edges()), []))
+                      graph.edges()), []))
     edge_y = list(reduce(operator.iconcat,
                   map(lambda x: [pos[x[0]][1],
                                  pos[x[1]][1], None],
-                      mapper.complex._graph.edges()), []))
+                      graph.edges()), []))
 
     edge_trace = go.Scatter(
             x=edge_x, y=edge_y,
