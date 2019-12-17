@@ -113,3 +113,10 @@ def get_node_text(node_elements, n_electors, node_color):
             f'Number of Electors: {y}<br>'
             f'Mean Value: {z}'
             for x, y, z in zip(node_elements.items(), n_electors, node_color)]
+
+
+def get_subgraph(graph, vertices_to_remove):
+    subgraph = graph.copy()
+    subgraph.delete_vertices(vertices_to_remove)
+
+    return subgraph
