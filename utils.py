@@ -109,14 +109,16 @@ def get_node_summary(node_elements, data, summary_stat=np.mean):
 
 
 def get_n_electors(node_elements, n_electors):
-    return [100 * n_electors.iloc[x].sum() /
-            (n_electors.sum() * len(n_electors.iloc[x]))
+    return [100 * n_electors.iloc[x].sum() / n_electors.sum()
             for x in node_elements]
 
 
 def get_node_text(node_elements, n_electors, node_color, label):
-    return [f'Node Id: {x[0]}<br>Node size: {len(x[1])}<br>' +
-            f'Number of Electors: {y}<br>'
+    return [f'Node Id: {x[0]}<br>' +
+            f'Node size: {len(x[1])}<br>' +
+            f'Percentage of Electors: {round(y, 2)}<br>' +
+            f'Percentage of Electors per County: '
+            f'{round(y / len(n_electors), 3)}<br>' +
             f'Mean {label}: {z}'
             for x, y, z in zip(node_elements.items(), n_electors, node_color)]
 
