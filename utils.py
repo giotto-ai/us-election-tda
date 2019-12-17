@@ -3,20 +3,6 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 
 
-def get_node_size(node_elements):
-    return list(map(len, node_elements))
-
-
-def get_node_summary(node_elements, data, summary_stat=np.mean):
-    return list(map(lambda x: summary_stat(data[x]),
-                    node_elements))
-
-
-def get_node_text(node_elements):
-    return list(map(lambda x: f'Node Id: {x[0]}<br>Node size: {len(x[1])}',
-                    node_elements.items()))
-
-
 def get_cols_by_type():
     num_cols = ['Personal income (thousands of dollars)',
                 'Net earnings by place of residence',
@@ -104,3 +90,18 @@ def split_data_by_year(data, df):
                 map(lambda x: data[x, :],
                     map(lambda x: df[df['year'] == x].index,
                         df['year'].unique()))))
+
+
+# for plotting
+def get_node_size(node_elements):
+    return list(map(len, node_elements))
+
+
+def get_node_summary(node_elements, data, summary_stat=np.mean):
+    return list(map(lambda x: summary_stat(data[x]),
+                    node_elements))
+
+
+def get_node_text(node_elements):
+    return list(map(lambda x: f'Node Id: {x[0]}<br>Node size: {len(x[1])}',
+                    node_elements.items()))
