@@ -34,8 +34,8 @@ def get_graph_plot_colored_by_winner(graph, year, df, pos=None,
                              .reset_index(drop=True)),
         'node_trace_marker_sizeref':
         .5 / max(utils.get_n_electors(node_elements,
-                                       df[df['year'] == year]['n_electors']
-                                       .reset_index(drop=True)))}
+                                      df[df['year'] == year]['n_electors']
+                                      .reset_index(drop=True)))}
 
     return visualize.create_network_2d(graph, pos, node_color,
                                        custom_plot_options=custom_plot_options)
