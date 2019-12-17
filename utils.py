@@ -92,6 +92,12 @@ def split_data_by_year(data, df):
                         df['year'].unique()))))
 
 
+def filter_2d_trafo(x):
+    x[:, 0] = np.log(x[:, 0] - min(x[:, 0]) + 1)
+    x[:, 1] = np.log(np.abs(x[:, 1]) + 1)
+    return x
+
+
 # for plotting
 def get_node_size(node_elements):
     return list(map(len, node_elements))
