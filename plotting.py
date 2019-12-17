@@ -36,7 +36,8 @@ def get_graph_plot_colored_by_winner(graph, year, df, pos=None,
         utils.get_n_electors(node_elements,
                              df[df['year'] == year]['n_electors']
                              .reset_index(drop=True)),
-        node_color)
+        node_color,
+        'Number of Counties Won by Republicans')
 
     custom_plot_options = {
         'node_trace_marker_colorscale': 'RdBu',
