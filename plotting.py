@@ -33,7 +33,7 @@ def get_graph_plot_colored_by_winner(graph, year, df, pos=None,
                              df[df['year'] == year]['n_electors']
                              .reset_index(drop=True)),
         'node_trace_marker_sizeref':
-        .01 / max(utils.get_n_electors(node_elements,
+        .5 / max(utils.get_n_electors(node_elements,
                                        df[df['year'] == year]['n_electors']
                                        .reset_index(drop=True)))}
 
