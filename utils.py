@@ -4,12 +4,12 @@ from sklearn.preprocessing import StandardScaler
 
 
 def get_node_size(node_elements):
-    return list(map(len, node_elements.values()))
+    return list(map(len, node_elements))
 
 
 def get_node_summary(node_elements, data, summary_stat=np.mean):
     return list(map(lambda x: summary_stat(data[x]),
-                    node_elements.values()))
+                    node_elements))
 
 
 def get_cols_by_type():
