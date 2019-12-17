@@ -12,6 +12,11 @@ def get_node_summary(node_elements, data, summary_stat=np.mean):
                     node_elements))
 
 
+def get_node_text(node_elements):
+    return list(map(lambda x: f'Node Id: {x[0]}<br>Node size: {len(x[1])}',
+                    node_elements.items()))
+
+
 def get_cols_by_type():
     num_cols = ['Personal income (thousands of dollars)',
                 'Net earnings by place of residence',
