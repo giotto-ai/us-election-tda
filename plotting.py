@@ -3,16 +3,20 @@ import numpy as np
 from giotto.mapper import visualize
 
 
-def get_graph_plot_colored_by_winner(graph, year, df, pos=None):
+def get_graph_plot_colored_by_election_results(graph, year, df, data,
+                                               layout=None):
     node_elements = graph['node_metadata']['node_elements']
 
-    if pos is None:
-        pos = graph.layout('kamada_kawai')
+    if layout is None:
+        layout = graph.layout('kk', dim=2)
 
-    node_color = utils.get_node_summary(node_elements,
-                                        df[df['year'] == year]['winner']
-                                        .values,
-                                        summary_stat=np.mean)
+    node_color = [(df[df['year'] == year]['winner'].values *
+                   df[df['year'] == year]['n_electors'].values)[x].sum() /
+                  df[df['year'] == year]['n_electors'].values[x].sum()
+                  for x in node_elements]
+
+    data_cols = utils.get_cols_for_mapper()
+    columns_to_color = dict(zip(data_cols, range(len(data_cols))))
 
     node_text = utils.get_node_text(
         dict(zip(range(len(node_elements)),
@@ -21,9 +25,9 @@ def get_graph_plot_colored_by_winner(graph, year, df, pos=None):
                              df[df['year'] == year]['n_electors']
                              .reset_index(drop=True)),
         node_color,
-        'Number of Counties Won by Republicans')
+        'Percentage of Electors')
 
-    custom_plot_options = {
+    plotly_kwargs = {
         'node_trace_marker_colorscale': 'RdBu',
         'node_trace_marker_reversescale': True,
         'node_trace_text': node_text,
@@ -36,5 +40,6 @@ def get_graph_plot_colored_by_winner(graph, year, df, pos=None):
                                       df[df['year'] == year]['n_electors']
                                       .reset_index(drop=True)))}
 
-    return visualize.create_network_2d(graph, pos, node_color,
-                                       custom_plot_options=custom_plot_options)
+    return visualize.create_network_2d(graph, data, layout, node_color,
+                                       columns_to_color=columns_to_color,
+                                       plotly_kwargs=plotly_kwargs)
