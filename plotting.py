@@ -3,8 +3,7 @@ import numpy as np
 from giotto.mapper import visualize
 
 
-def get_graph_plot_colored_by_winner(graph, year, df, pos=None,
-                                     color_by='filter_values'):
+def get_graph_plot_colored_by_winner(graph, year, df, pos=None):
     node_elements = graph['node_metadata']['node_elements']
 
     if pos is None:
