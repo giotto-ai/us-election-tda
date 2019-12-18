@@ -3,8 +3,8 @@ import utils
 from giotto.mapper import visualize
 
 
-def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
-                legend_title='Republican/Democrat'):
+def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
+                    legend_title='', showlegend=False):
     # https://plot.ly/python/county-choropleth/
 
     fig = ff.create_choropleth(fips=fips, values=values,
@@ -14,7 +14,8 @@ def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
                                asp=2.9, title='Election Outcome',
                                legend_title=legend_title)
     fig.layout.template = None
-    fig.show()
+    fig.update_layout(showlegend=showlegend)
+    return fig
 
 
 def get_graph_plot_colored_by_election_results(graph, year, df, data,
