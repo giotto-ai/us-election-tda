@@ -2,6 +2,9 @@ import numpy as np
 
 from sklearn.preprocessing import StandardScaler
 
+import matplotlib.colors
+import pandas as pd
+
 
 def get_cols_by_type():
     num_cols = ['Personal income (thousands of dollars)',
@@ -130,3 +133,24 @@ def get_subgraph(graph, vertices_to_remove):
     subgraph.delete_vertices(vertices_to_remove)
 
     return subgraph
+
+
+def get_county_plot_data(graph, df, col, cmap):
+    map_col = (pd.DataFrame(np.zeros((df.shape[0],
+                                      2)),
+                            columns=['color_sum', 'n_counties'])
+               .astype({'n_counties': 'int'}))
+
+    for rows, val in zip(graph['node_metadata']['node_elements'],
+                         get_node_summary(graph['node_metadata']
+                                          ['node_elements'],
+                                          df[col])):
+        map_col.loc[rows] = map_col.loc[rows] + [val, 1]
+
+    colors = list(map(matplotlib.colors.rgb2hex,
+                      cmap((map_col['color_sum'] /
+                            map_col['n_counties']).sort_values().unique()
+                           .tolist())[:, :3]))
+
+    return ((map_col['color_sum'] / map_col['n_counties']).tolist(),
+            colors)
