@@ -45,44 +45,46 @@ def get_cols_by_type():
     return num_cols, info_cols, elec_cols
 
 
-def get_data(df):
-    num_cols, _, _ = get_cols_by_type()
-
-    # perform a log transformation on the data
-    df[num_cols] = (df[num_cols] +
-                    abs(df[num_cols].min().min()) + 1).apply(np.log)
-
+def get_cols_for_mapper():
     # columns to use for the mapper were found by comparing the distribution
     # of each column between the different election years
     # The ones differing throughout the years are selected (selection was made
     # by eye)
-    cols2use = ['Personal income (thousands of dollars)',
-                'Net earnings by place of residence',
-                'Income maintenance benefits 1/',
-                'Unemployment insurance compensation',
-                'Per capita personal income 4/',
-                'Per capita net earnings 4/',
-                'Per capita personal current transfer receipts 4/',
-                'Per capita income maintenance benefits 4/',
-                'Per capita unemployment insurance compensation 4/',
-                'Per capita retirement and other 4/',
-                'Per capita dividends, interest, and rent 4/',
-                'Earnings by place of work',
-                "Proprietors' income",
-                "Nonfarm proprietors' income",
-                'Total employment (number of jobs)',
-                'Proprietors employment',
-                'Farm proprietors employment 6/',
-                'Nonfarm proprietors employment',
-                'Average earnings per job (dollars)',
-                'Average wages and salaries',
-                "Average nonfarm proprietors' income"]
+    return ['Personal income (thousands of dollars)',
+            'Net earnings by place of residence',
+            'Income maintenance benefits 1/',
+            'Unemployment insurance compensation',
+            'Per capita personal income 4/',
+            'Per capita net earnings 4/',
+            'Per capita personal current transfer receipts 4/',
+            'Per capita income maintenance benefits 4/',
+            'Per capita unemployment insurance compensation 4/',
+            'Per capita retirement and other 4/',
+            'Per capita dividends, interest, and rent 4/',
+            'Earnings by place of work',
+            "Proprietors' income",
+            "Nonfarm proprietors' income",
+            'Total employment (number of jobs)',
+            'Proprietors employment',
+            'Farm proprietors employment 6/',
+            'Nonfarm proprietors employment',
+            'Average earnings per job (dollars)',
+            'Average wages and salaries',
+            "Average nonfarm proprietors' income"]
+
+
+def get_data(df):
+    data_cols = get_cols_for_mapper()
+
+    # perform a log transformation on the data
+    df[data_cols] = (df[data_cols] +
+                     abs(df[data_cols].min().min()) + 1).apply(np.log)
 
     # scale data to have zero mean and a standard deviation of one
     scaler = StandardScaler()
-    df[num_cols] = scaler.fit_transform(df[num_cols])
+    df[data_cols] = scaler.fit_transform(df[data_cols])
 
-    return df[cols2use].values
+    return df[data_cols].values
 
 
 def split_data_by_year(data, df):
