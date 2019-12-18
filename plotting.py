@@ -1,5 +1,4 @@
 import utils
-import numpy as np
 from giotto.mapper import visualize
 
 
