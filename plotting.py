@@ -5,7 +5,7 @@ from giotto.mapper import visualize
 
 def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
                 legend_title='Republican/Democrat'):
-    # https://plot.ly/python/county-choropleth/		
+    # https://plot.ly/python/county-choropleth/
 
     fig = ff.create_choropleth(fips=fips, values=values,
                                colorscale=colorscale,
