@@ -1,6 +1,6 @@
 import plotly.figure_factory as ff
 import utils
-from giotto.mapper import visualize
+from giotto.mapper import visualization
 
 
 def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
@@ -55,6 +55,6 @@ def get_graph_plot_colored_by_election_results(graph, year, df, data,
                                       df[df['year'] == year]['n_electors']
                                       .reset_index(drop=True)))}
 
-    return visualize.create_network_2d(graph, data, layout, node_color,
-                                       columns_to_color=columns_to_color,
-                                       plotly_kwargs=plotly_kwargs)
+    return visualization.create_network_2d(graph, data, layout, node_color,
+                                           columns_to_color=columns_to_color,
+                                           plotly_kwargs=plotly_kwargs)
