@@ -5,6 +5,10 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.colors
 import pandas as pd
 
+import itertools
+import collections
+from giotto.mapper import visualization
+
 
 def get_cols_by_type():
     num_cols = ['Personal income (thousands of dollars)',
@@ -154,3 +158,47 @@ def get_county_plot_data(graph, df, col, cmap):
 
     return ((map_col['color_sum'] / map_col['n_counties']).tolist(),
             colors)
+
+
+def get_region_plot(graph, data, layout, columns_to_color, node_elements):
+    region_0 = {45, 18, 1, 7, 52, 55, 50, 49, 46, 51, 47, 30, 2, 44,
+                37, 54, 53, 9, 48, 13, 24}
+    region_1 = {41, 42, 43}
+    region_2 = {38, 39, 40}
+    region_3 = {25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36}
+    region_4 = {14, 15, 16, 17, 19, 20, 21, 22, 23}
+    region_5 = {0, 3, 4, 5, 6, 8, 10, 11, 12}
+
+    colorscale_hex = dict(zip(range(6),
+                          ['#004e00', '#7CFC00', '#6f0043',
+                           '#f86200', '#f8de00', '#f80096']))
+
+    singletons = zip(region_0,
+                     itertools.repeat(colorscale_hex[0]))
+
+    high_personal_income = zip(region_1,
+                               itertools.repeat(colorscale_hex[1]))
+    high_per_capita_personal_income = zip(region_2,
+                                          itertools.repeat(colorscale_hex[2]))
+    elevated_indicators = zip(region_3,
+                              itertools.repeat(colorscale_hex[3]))
+    low_indicators = zip(region_4,
+                         itertools.repeat(colorscale_hex[4]))
+    high_per_capita_retirement = zip(region_5,
+                                     itertools.repeat(colorscale_hex[5]))
+
+    node_color = list(
+        collections.OrderedDict(
+            sorted(itertools.chain(
+                *map(list,
+                     [singletons, high_personal_income,
+                      high_per_capita_personal_income, elevated_indicators,
+                      low_indicators, high_per_capita_retirement])))).values())
+
+    plotly_kwargs = {
+        'node_trace_marker_size': [1] * len(node_elements),
+        'node_trace_marker_showscale': False}
+
+    return visualization.create_network_2d(graph, data, layout, node_color,
+                                           columns_to_color=columns_to_color,
+                                           plotly_kwargs=plotly_kwargs)
