@@ -315,3 +315,14 @@ def mean_rgb(rgb_vals):
     '''
     # calculate mean of list of rbg values
     return tuple(map(int, np.mean(rgb_vals, axis=0)))
+
+
+def get_small_cluster_ids():
+    '''
+        Function the get ids of singletons/small clusters.
+        Input:
+        Output:
+            List of node ids of singletons/small clusters
+    '''
+    return [45, 18, 1, 7, 52, 55, 50, 49, 46, 51, 47, 30, 2, 44, 37, 54, 53, 9,
+            48, 13, 24]
