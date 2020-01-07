@@ -168,6 +168,14 @@ def get_regions():
     }
 
 
+def get_data_per_region(regions, node_elements):
+    # return dictionary with regions as key and corresponding data points as
+    # values
+    return dict((region_id, set.union(*[set(node_elements[node])
+                                        for node in regions[region_id]]))
+                for region_id in regions.keys())
+
+
 def hex2rgb(hex_colors):
     # convert #xxyyzz hex color format to (r, g, b)
     rgb_colors = [color.lstrip('#') for color in hex_colors]
