@@ -3,6 +3,7 @@ import utils
 import itertools
 import collections
 from giotto.mapper import visualization
+import numpy as np
 
 
 def get_region_plot(graph, data, layout, columns_to_color, node_elements,
@@ -80,3 +81,47 @@ def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
     fig.layout.template = None
     fig.update_layout(showlegend=showlegend)
     return fig
+
+
+def get_county_plot_by_region(data, colorscale, node_elements, fips):
+    colorscale = dict(zip(map(str, range(len(colorscale))),
+                          utils.hex2rgb(colorscale.values())))
+    colorscale['1-3'] = utils.mean_rgb([colorscale['1'],
+                                        colorscale['3']])
+    colorscale['2-3'] = utils.mean_rgb([colorscale['2'],
+                                        colorscale['3']])
+    colorscale['3-4'] = utils.mean_rgb([colorscale['3'],
+                                        colorscale['4']])
+    colorscale['4-5'] = utils.mean_rgb([colorscale['4'],
+                                        colorscale['5']])
+
+    elements_per_region = utils.get_data_per_region(utils.get_regions(),
+                                                    node_elements)
+
+    county_color = np.zeros(data.shape[0], dtype='int')
+    county_color[list(elements_per_region[0])] = 0
+    county_color[list(elements_per_region[1]
+                      .difference(elements_per_region[3]))] = 1
+    county_color[list(elements_per_region[2]
+                      .difference(elements_per_region[3]))] = 2
+    county_color[list(elements_per_region[3]
+                      .difference(elements_per_region[1])
+                      .difference(elements_per_region[2]))] = 3
+    county_color[list(elements_per_region[4]
+                      .difference(elements_per_region[3]))] = 4
+    county_color[list(elements_per_region[5]
+                      .difference(elements_per_region[4]))] = 5
+
+    county_color[list(elements_per_region[1]
+                      .intersection(elements_per_region[3]))] = 6
+    county_color[list(elements_per_region[2]
+                      .intersection(elements_per_region[3]))] = 7
+    county_color[list(elements_per_region[3]
+                      .intersection(elements_per_region[4]))] = 8
+    county_color[list(elements_per_region[4]
+                      .intersection(elements_per_region[5]))] = 9
+    county_color = county_color.tolist()
+
+    return get_county_plot(
+        fips=fips, values=county_color,
+        colorscale=[f'rgb{rgb}' for rgb in list(colorscale.values())])
