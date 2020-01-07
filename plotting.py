@@ -34,10 +34,11 @@ def get_graph_plot_colored_by_election_results(graph, year, df, data,
     if layout is None:
         layout = graph.layout('kk', dim=2)
 
-    node_color = [(df[df['year'] == year]['winner'].values *
-                   df[df['year'] == year]['n_electors'].values)[x].sum() /
-                  df[df['year'] == year]['n_electors'].values[x].sum()
-                  for x in node_elements]
+    node_color = [
+        100 * (df[df['year'] == year]['winner'].values *
+               df[df['year'] == year]['n_electors'].values)[x].sum() /
+        df[df['year'] == year]['n_electors'].values[x].sum()
+        for x in node_elements]
 
     data_cols = utils.get_cols_for_mapper()
     columns_to_color = dict(zip(data_cols, range(len(data_cols))))
@@ -49,11 +50,13 @@ def get_graph_plot_colored_by_election_results(graph, year, df, data,
                              df[df['year'] == year]['n_electors']
                              .reset_index(drop=True)),
         node_color,
-        'Percentage of Electors')
+        'Percentage of Electors Won by Republicans')
 
     plotly_kwargs = {
         'node_trace_marker_colorscale': 'RdBu',
         'node_trace_marker_reversescale': True,
+        'node_trace_marker_cmin': 0,
+        'node_trace_marker_cmax': 100,
         'node_trace_text': node_text,
         'node_trace_marker_size':
         utils.get_n_electors(node_elements,
