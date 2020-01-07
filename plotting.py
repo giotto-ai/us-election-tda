@@ -20,19 +20,16 @@ def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
     return fig
 
 
-def get_region_plot(graph, data, layout, columns_to_color, node_elements):
+def get_region_plot(graph, data, layout, columns_to_color, node_elements,
+                    colorscale):
     regions = utils.get_regions()
-
-    colorscale_hex = dict(zip(range(6),
-                          ['#004e00', '#7CFC00', '#6f0043',
-                           '#f86200', '#f8de00', '#f80096']))
 
     node_color = list(
         collections.OrderedDict(
             sorted(itertools.chain(
                 *map(list,
                      [zip(regions[region],
-                          itertools.repeat(colorscale_hex[region]))
+                          itertools.repeat(colorscale[region]))
                       for region in range(len(regions))])))).values())
 
     plotly_kwargs = {
