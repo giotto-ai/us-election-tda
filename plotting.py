@@ -5,21 +5,6 @@ import collections
 from giotto.mapper import visualization
 
 
-def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
-                    legend_title='', showlegend=False):
-    # https://plot.ly/python/county-choropleth/
-
-    fig = ff.create_choropleth(fips=fips, values=values,
-                               colorscale=colorscale,
-                               show_state_data=False,
-                               show_hover=True, centroid_marker={'opacity': 0},
-                               asp=2.9, title='Election Outcome',
-                               legend_title=legend_title)
-    fig.layout.template = None
-    fig.update_layout(showlegend=showlegend)
-    return fig
-
-
 def get_region_plot(graph, data, layout, columns_to_color, node_elements,
                     colorscale):
     regions = utils.get_regions()
@@ -39,7 +24,6 @@ def get_region_plot(graph, data, layout, columns_to_color, node_elements,
     return visualization.create_network_2d(graph, data, layout, node_color,
                                            columns_to_color=columns_to_color,
                                            plotly_kwargs=plotly_kwargs)
-
 
 def get_graph_plot_colored_by_election_results(graph, year, df, data,
                                                layout=None):
@@ -81,3 +65,18 @@ def get_graph_plot_colored_by_election_results(graph, year, df, data,
     return visualization.create_network_2d(graph, data, layout, node_color,
                                            columns_to_color=columns_to_color,
                                            plotly_kwargs=plotly_kwargs)
+
+
+def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
+                    legend_title='', showlegend=False):
+    # https://plot.ly/python/county-choropleth/
+
+    fig = ff.create_choropleth(fips=fips, values=values,
+                               colorscale=colorscale,
+                               show_state_data=False,
+                               show_hover=True, centroid_marker={'opacity': 0},
+                               asp=2.9, title='Election Outcome',
+                               legend_title=legend_title)
+    fig.layout.template = None
+    fig.update_layout(showlegend=showlegend)
+    return fig
