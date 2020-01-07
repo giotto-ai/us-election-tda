@@ -4,7 +4,8 @@
 
 Just want to get started? Go directly to the [Getting started](#getting-started) section!
 
-## What is it?
+## What it is
+
 A guide to how to gain insight in a given data set using the Mapper algorithm implemented in Giotto.
 
 ## Data
@@ -12,7 +13,8 @@ A guide to how to gain insight in a given data set using the Mapper algorithm im
 ## Results
 
 ## Getting started
-```
+
+```bash
 virtualenv -p python3.7 env
 pip install -r requirements.txt
 ```

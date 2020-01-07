@@ -26,6 +26,7 @@ def get_region_plot(graph, data, layout, columns_to_color, node_elements,
                                            columns_to_color=columns_to_color,
                                            plotly_kwargs=plotly_kwargs)
 
+
 def get_graph_plot_colored_by_election_results(graph, year, df, data,
                                                layout=None):
     node_elements = graph['node_metadata']['node_elements']
