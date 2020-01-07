@@ -1,5 +1,7 @@
 import plotly.figure_factory as ff
 import utils
+import itertools
+import collections
 from giotto.mapper import visualization
 
 
@@ -16,6 +18,30 @@ def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
     fig.layout.template = None
     fig.update_layout(showlegend=showlegend)
     return fig
+
+
+def get_region_plot(graph, data, layout, columns_to_color, node_elements):
+    regions = utils.get_regions()
+
+    colorscale_hex = dict(zip(range(6),
+                          ['#004e00', '#7CFC00', '#6f0043',
+                           '#f86200', '#f8de00', '#f80096']))
+
+    node_color = list(
+        collections.OrderedDict(
+            sorted(itertools.chain(
+                *map(list,
+                     [zip(regions[region],
+                          itertools.repeat(colorscale_hex[region]))
+                      for region in range(len(regions))])))).values())
+
+    plotly_kwargs = {
+        'node_trace_marker_size': [1] * len(node_elements),
+        'node_trace_marker_showscale': False}
+
+    return visualization.create_network_2d(graph, data, layout, node_color,
+                                           columns_to_color=columns_to_color,
+                                           plotly_kwargs=plotly_kwargs)
 
 
 def get_graph_plot_colored_by_election_results(graph, year, df, data,

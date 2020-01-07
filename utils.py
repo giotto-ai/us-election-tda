@@ -5,10 +5,6 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.colors
 import pandas as pd
 
-import itertools
-import collections
-from giotto.mapper import visualization
-
 
 def get_cols_by_type():
     num_cols = ['Personal income (thousands of dollars)',
@@ -160,8 +156,8 @@ def get_county_plot_data(graph, df, col, cmap):
             colors)
 
 
-def get_region_plot(graph, data, layout, columns_to_color, node_elements):
-    regions = {
+def get_regions():
+    return {
         0: {45, 18, 1, 7, 52, 55, 50, 49, 46, 51, 47, 30, 2, 44,
             37, 54, 53, 9, 48, 13, 24},
         1: {41, 42, 43},
@@ -170,23 +166,3 @@ def get_region_plot(graph, data, layout, columns_to_color, node_elements):
         4: {14, 15, 16, 17, 19, 20, 21, 22, 23},
         5: {0, 3, 4, 5, 6, 8, 10, 11, 12}
     }
-
-    colorscale_hex = dict(zip(range(6),
-                          ['#004e00', '#7CFC00', '#6f0043',
-                           '#f86200', '#f8de00', '#f80096']))
-
-    node_color = list(
-        collections.OrderedDict(
-            sorted(itertools.chain(
-                *map(list,
-                     [zip(regions[region],
-                          itertools.repeat(colorscale_hex[region]))
-                      for region in range(len(regions))])))).values())
-
-    plotly_kwargs = {
-        'node_trace_marker_size': [1] * len(node_elements),
-        'node_trace_marker_showscale': False}
-
-    return visualization.create_network_2d(graph, data, layout, node_color,
-                                           columns_to_color=columns_to_color,
-                                           plotly_kwargs=plotly_kwargs)
