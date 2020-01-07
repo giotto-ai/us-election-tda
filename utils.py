@@ -166,3 +166,15 @@ def get_regions():
         4: {14, 15, 16, 17, 19, 20, 21, 22, 23},
         5: {0, 3, 4, 5, 6, 8, 10, 11, 12}
     }
+
+
+def hex2rgb(hex_colors):
+    # convert #xxyyzz hex color format to (r, g, b)
+    rgb_colors = [color.lstrip('#') for color in hex_colors]
+    return [tuple(int(color[i:i + 2], 16) for i in (0, 2, 4))
+            for color in rgb_colors]
+
+
+def mean_rgb(rgb_vals):
+    # calculate mean of list of rbg values
+    return tuple(map(int, np.mean(rgb_vals, axis=0)))
