@@ -26,7 +26,7 @@ pip install python-igraph
 
 __2. Windows__
 
-You first have to download from [here] (https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-igraph) the binary wheel corresponding to your Python version and architecture. Then, you need to run the following commands in a terminal:
+You first have to download from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-igraph) the binary wheel corresponding to your Python version and architecture. Then, you need to run the following commands in a terminal:
 
 ```bash
 virtualenv -p python3.7 env
