@@ -127,7 +127,7 @@ def split_data_by_year(data, df):
                         df['year'].unique()))))
 
 
-def filter_2d_trafo(x):
+def log_transform_2d_filter_values(x):
     '''
         Transformation of PCA values to obtain final filter.
         Input:
