@@ -16,6 +16,7 @@ def get_region_plot(graph, data, layout, columns_to_color, node_elements,
     # 3. flatten list (itertools.chain())
     # 4. sort values by keys
     # 5. convert to ordered dictionary
+    # 6. extract values and convert to list
     node_color = list(
         collections.OrderedDict(
             sorted(itertools.chain(
