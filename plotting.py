@@ -8,6 +8,30 @@ import numpy as np
 
 def get_region_plot(graph, data, layout, columns_to_color, node_elements,
                     colorscale):
+    '''Function to generate a figure of the mapper graph colored by identified
+    regions
+    
+    Parameters
+    ----------
+    graph : igraph object
+        Mapper graph
+    data : ndarray (n_samples x n_dim)
+        Data used for mapper
+    layout : igraph.layout.Layout
+        Layout of graph
+    columns_to_color : list
+        List of columns to color by
+    node_elements : tuple
+        Tuple of arrays where array at positin x contains the data points for
+        node x
+    colorscale : list
+        List of colors to use for each region
+
+    Returns
+    -------
+    fig : igraph object
+    '''
+
     regions = utils.get_regions()
 
     # set node color:
@@ -39,6 +63,25 @@ def get_region_plot(graph, data, layout, columns_to_color, node_elements,
 
 def get_graph_plot_colored_by_election_results(graph, year, df, data,
                                                layout=None):
+    '''Function make plot of US with counties colored by winner of election
+    
+    Parameters
+    ----------
+    graph : igraph object
+        Mapper graph
+    df : pandas data frame
+        Data frame containing info of winner per county, year of election and
+        number of electors in county
+    data : ndarray (n_samples x n_dim)
+        Data used for mapper
+    layout : igraph.layout.Layout (default: None)
+        Layout of graph
+
+    Returns
+    -------
+    fig: igraph object
+    '''
+
     node_elements = graph['node_metadata']['node_elements']
 
     if layout is None:
@@ -85,7 +128,30 @@ def get_graph_plot_colored_by_election_results(graph, year, df, data,
 
 def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"], title='',
                     show_state_data=False, legend_title='', showlegend=False):
-    # https://plot.ly/python/county-choropleth/
+    '''Figure of the US colored on a county level
+    (inspired by # https://plot.ly/python/county-choropleth/)
+
+    Parameters
+    ----------
+    fips : list
+        List of Federal Information Processing Standard (FIPS) county codes
+    value : list (n_counties)
+        List with an index of colorscale to color the county by
+    colorscale : list (default: ["#0000ff", "#ff0000"])
+        List with colors to color counties by
+    title : str (default: '')
+        Title of figure
+    show_state_data : bool (default: False)
+        Boolean to (not) show state borders
+    legend_title : str (default: '')
+        Title of legend
+    showlegend : bool (default: False)
+        Boolean to (not) show legend
+
+    Returns
+    -------
+    fig : plotly figure object
+    '''
 
     fig = ff.create_choropleth(fips=fips, values=values,
                                colorscale=colorscale,
@@ -99,6 +165,26 @@ def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"], title='',
 
 
 def get_county_plot_by_region(data, colorscale, node_elements, fips):
+    '''Function to create figure of US with counties colored by region they
+    belong to
+
+    Parameters
+    ----------
+    data : ndarray (n_samples x n_dim)
+        Data used for mapper
+    colorscale : list
+        List with colors to color counties by
+    node_elements : tuple
+        Tuple of arrays where array at positin x contains the data points for
+        node x
+    fips : list
+        List of Federal Information Processing Standard (FIPS) county codes
+
+    Returns
+    -------
+    fig: plotly figure object
+    '''
+
     # convert colorscale from hex format to rgb
     colorscale = dict(zip(map(str, range(len(colorscale))),
                           utils.hex2rgb(colorscale.values())))
