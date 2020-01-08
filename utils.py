@@ -140,7 +140,6 @@ def filter_2d_trafo(x):
     return x
 
 
-# for plotting
 def get_node_size(node_elements):
     '''
         Function to get node size
