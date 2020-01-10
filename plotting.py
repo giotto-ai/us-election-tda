@@ -1,170 +1,242 @@
-import networkx as nx
-import numpy as np
 import plotly.figure_factory as ff
-
-import plotly.graph_objects as go
-from functools import reduce
-import operator
-
-
-def mapper_nx_plot(mapper, node_color=None, cmap='autumn',
-                   node_size=None, pos=None, with_labels=False,
-                   labels=None):
-    nx.draw(mapper.complex._graph,
-            node_color=node_color,
-            cmap=cmap, vmin=np.min(node_color), vmax=np.max(node_color),
-            node_size=node_size, pos=pos, with_labels=with_labels,
-            labels=labels)
+import utils
+import itertools
+import collections
+from giotto.mapper import visualization
+import numpy as np
 
 
-def county_plot(fips, values, colorscale=["#0000ff", "#ff0000"],
-                legend_title='Republican/Democrat'):
-    # https://plot.ly/python/county-choropleth/
+def get_region_plot(graph, data, layout, columns_to_color, node_elements,
+                    colorscale):
+    '''Function to generate a figure of the mapper graph colored by identified
+    regions
+    
+    Parameters
+    ----------
+    graph : igraph object
+        Mapper graph
+    data : ndarray (n_samples x n_dim)
+        Data used for mapper
+    layout : igraph.layout.Layout
+        Layout of graph
+    columns_to_color : list
+        List of columns to color by
+    node_elements : tuple
+        Tuple of arrays where array at positin x contains the data points for
+        node x
+    colorscale : list
+        List of colors to use for each region
+
+    Returns
+    -------
+    fig : igraph object
+    '''
+
+    regions = utils.get_regions()
+
+    # set node color:
+    # 1. assign to each node of a region its color (zip())
+    # 2. convert zip elements to list (map())
+    # 3. flatten list (itertools.chain())
+    # 4. sort values by keys
+    # 5. convert to ordered dictionary
+    # 6. extract values and convert to list
+    node_color = list(
+        collections.OrderedDict(
+            sorted(itertools.chain(
+                *map(list,
+                     [zip(regions[region],
+                          itertools.repeat(colorscale[region]))
+                      for region in range(len(regions))])))).values())
+
+    # set plotly arguments:
+    # 1. set uniform node size
+    # 2. hide scale of marker color
+    plotly_kwargs = {
+        'node_trace_marker_size': [1] * len(node_elements),
+        'node_trace_marker_showscale': False}
+
+    return visualization.create_network_2d(graph, data, layout, node_color,
+                                           columns_to_color=columns_to_color,
+                                           plotly_kwargs=plotly_kwargs)
+
+
+def get_graph_plot_colored_by_election_results(graph, year, df, data,
+                                               layout=None):
+    '''Function make plot of US with counties colored by winner of election
+    
+    Parameters
+    ----------
+    graph : igraph object
+        Mapper graph
+    df : pandas data frame
+        Data frame containing info of winner per county, year of election and
+        number of electors in county
+    data : ndarray (n_samples x n_dim)
+        Data used for mapper
+    layout : igraph.layout.Layout (default: None)
+        Layout of graph
+
+    Returns
+    -------
+    fig: igraph object
+    '''
+
+    node_elements = graph['node_metadata']['node_elements']
+
+    if layout is None:
+        layout = graph.layout('kk', dim=2)
+
+    # set node color to percentage of number of electors won by republicans
+    node_color = [
+        100 * (df[df['year'] == year]['winner'].values *
+               df[df['year'] == year]['n_electors'].values)[x].sum() /
+        df[df['year'] == year]['n_electors'].values[x].sum()
+        for x in node_elements]
+
+    data_cols = utils.get_cols_for_mapper()
+    columns_to_color = dict(zip(data_cols, range(len(data_cols))))
+
+    node_text = utils.get_node_text(
+        dict(zip(range(len(node_elements)),
+                 node_elements)),
+        utils.get_n_electors(node_elements,
+                             df[df['year'] == year]['n_electors']
+                             .reset_index(drop=True)),
+        node_color,
+        'Percentage of Electors Won by Republicans')
+
+    plotly_kwargs = {
+        'node_trace_marker_colorscale': 'RdBu',
+        'node_trace_marker_reversescale': True,
+        'node_trace_marker_cmin': 0,
+        'node_trace_marker_cmax': 100,
+        'node_trace_text': node_text,
+        'node_trace_marker_size':
+        utils.get_n_electors(node_elements,
+                             df[df['year'] == year]['n_electors']
+                             .reset_index(drop=True)),
+        'node_trace_marker_sizeref':
+        .5 / max(utils.get_n_electors(node_elements,
+                                      df[df['year'] == year]['n_electors']
+                                      .reset_index(drop=True)))}
+
+    return visualization.create_network_2d(graph, data, layout, node_color,
+                                           columns_to_color=columns_to_color,
+                                           plotly_kwargs=plotly_kwargs)
+
+
+def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"], title='',
+                    show_state_data=False, legend_title='', showlegend=False):
+    '''Figure of the US colored on a county level
+    (inspired by # https://plot.ly/python/county-choropleth/)
+
+    Parameters
+    ----------
+    fips : list
+        List of Federal Information Processing Standard (FIPS) county codes
+    value : list (n_counties)
+        List with an index of colorscale to color the county by
+    colorscale : list (default: ["#0000ff", "#ff0000"])
+        List with colors to color counties by
+    title : str (default: '')
+        Title of figure
+    show_state_data : bool (default: False)
+        Boolean to (not) show state borders
+    legend_title : str (default: '')
+        Title of legend
+    showlegend : bool (default: False)
+        Boolean to (not) show legend
+
+    Returns
+    -------
+    fig : plotly figure object
+    '''
 
     fig = ff.create_choropleth(fips=fips, values=values,
                                colorscale=colorscale,
-                               show_state_data=False,
+                               show_state_data=show_state_data,
                                show_hover=True, centroid_marker={'opacity': 0},
-                               asp=2.9, title='Election Outcome',
+                               asp=2.9, title=title,
                                legend_title=legend_title)
     fig.layout.template = None
-    fig.show()
+    fig.update_layout(showlegend=showlegend)
+    return fig
 
 
-def mapper_plotly_plot(graph, pos, size, node_color, node_text,
-                       colorscale='RdBu', cmin=0, cmax=1, legend_title=''):
-    edge_x = list(reduce(operator.iconcat,
-                  map(lambda x: [pos[x[0]][0],
-                                 pos[x[1]][0], None],
-                      graph.edges()), []))
-    edge_y = list(reduce(operator.iconcat,
-                  map(lambda x: [pos[x[0]][1],
-                                 pos[x[1]][1], None],
-                      graph.edges()), []))
+def get_county_plot_by_region(data, colorscale, node_elements, fips):
+    '''Function to create figure of US with counties colored by region they
+    belong to
 
-    edge_trace = go.Scatter(
-            x=edge_x, y=edge_y,
-            line=dict(width=0.5, color='#888'),
-            hoverinfo='none',
-            mode='lines')
+    Parameters
+    ----------
+    data : ndarray (n_samples x n_dim)
+        Data used for mapper
+    colorscale : list
+        List with colors to color counties by
+    node_elements : tuple
+        Tuple of arrays where array at positin x contains the data points for
+        node x
+    fips : list
+        List of Federal Information Processing Standard (FIPS) county codes
 
-    node_x = list(map(lambda x: pos[x][0], range(len(pos))))
-    node_y = list(map(lambda x: pos[x][1], range(len(pos))))
+    Returns
+    -------
+    fig: plotly figure object
+    '''
 
-    node_trace = go.Scatter(
-        x=node_x, y=node_y,
-        mode='markers',
-        hoverinfo='text',
-        marker=dict(
-            showscale=True,
-            colorscale=colorscale,
-            reversescale=True,
-            line=dict(width=.5, color='#888'),
-            color=node_color,
-            size=size,
-            cmin=cmin,
-            cmax=cmax,
-            colorbar=dict(
-                thickness=15,
-                title=legend_title,
-                xanchor='left',
-                titleside='right'
-            ),
-            line_width=2),
-        text=node_text)
+    # convert colorscale from hex format to rgb
+    colorscale = dict(zip(map(str, range(len(colorscale))),
+                          utils.hex2rgb(colorscale.values())))
+    # define color of counties belonging to two regions as their mean rgb value
+    colorscale['1-3'] = utils.mean_rgb([colorscale['1'],
+                                        colorscale['3']])
+    colorscale['2-3'] = utils.mean_rgb([colorscale['2'],
+                                        colorscale['3']])
+    colorscale['3-4'] = utils.mean_rgb([colorscale['3'],
+                                        colorscale['4']])
+    colorscale['4-5'] = utils.mean_rgb([colorscale['4'],
+                                        colorscale['5']])
 
-    fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(showlegend=False,
-                                     hovermode='closest',
-                                     margin={'b': 20, 'l': 5, 'r': 5, 't': 40},
-                                     xaxis=dict(showgrid=False, zeroline=False,
-                                                showticklabels=False, ticks="",
-                                                showline=False),
-                                     yaxis=dict(showgrid=False, zeroline=False,
-                                                showticklabels=False, ticks="",
-                                                showline=False),
-                                     xaxis_title="",
-                                     yaxis_title=""))
-    fig.update_layout(template='simple_white')
-    fig.show()
+    elements_per_region = utils.get_data_per_region(utils.get_regions(),
+                                                    node_elements)
 
+    # assign each county its color
+    county_color = np.zeros(data.shape[0], dtype='int')
+    # region 0
+    county_color[list(elements_per_region[0])] = 0
+    # region 1 and not 3
+    county_color[list(elements_per_region[1]
+                      .difference(elements_per_region[3]))] = 1
+    # region 2 and not 3
+    county_color[list(elements_per_region[2]
+                      .difference(elements_per_region[3]))] = 2
+    # region 3 and neither 1 nor 2
+    county_color[list(elements_per_region[3]
+                      .difference(elements_per_region[1])
+                      .difference(elements_per_region[2]))] = 3
+    # region 4 but not 3
+    county_color[list(elements_per_region[4]
+                      .difference(elements_per_region[3]))] = 4
+    # region 5 but not 4
+    county_color[list(elements_per_region[5]
+                      .difference(elements_per_region[4]))] = 5
 
-def mapper_plotly_3dplot(graph, pos, size, node_color, node_text,
-                         colorscale='RdBu', cmin=0, cmax=1,
-                         legend_title=''):
+    # region 1 and 3
+    county_color[list(elements_per_region[1]
+                      .intersection(elements_per_region[3]))] = 6
+    # region 2 and 3
+    county_color[list(elements_per_region[2]
+                      .intersection(elements_per_region[3]))] = 7
+    # region 3 and 4
+    county_color[list(elements_per_region[3]
+                      .intersection(elements_per_region[4]))] = 8
+    # region 4 and 5
+    county_color[list(elements_per_region[4]
+                      .intersection(elements_per_region[5]))] = 9
 
-    edge_x = list(reduce(operator.iconcat,
-                  map(lambda x: [pos[x[0]][0],
-                                 pos[x[1]][0], None],
-                      graph.edges()), []))
-    edge_y = list(reduce(operator.iconcat,
-                  map(lambda x: [pos[x[0]][1],
-                                 pos[x[1]][1], None],
-                      graph.edges()), []))
+    county_color = county_color.tolist()
 
-    edge_z = list(reduce(operator.iconcat,
-                  map(lambda x: [pos[x[0]][2],
-                                 pos[x[1]][2], None],
-                      graph.edges()), []))
-
-    edge_trace = go.Scatter3d(x=edge_x,
-                              y=edge_y,
-                              z=edge_z,
-                              mode='lines',
-                              line=dict(color='rgb(125,125,125)',
-                                        width=1),
-                              hoverinfo='none')
-
-    node_x = list(map(lambda x: pos[x][0], range(len(pos))))
-    node_y = list(map(lambda x: pos[x][1], range(len(pos))))
-    node_z = list(map(lambda x: pos[x][2], range(len(pos))))
-
-    node_trace = go.Scatter3d(
-        x=node_x,
-        y=node_y,
-        z=node_z,
-        mode='markers',
-        marker=dict(
-            showscale=True,
-            colorscale=colorscale,
-            reversescale=True,
-            line=dict(width=.5, color='#888'),
-            color=node_color,
-            size=size,
-            cmin=cmin,
-            cmax=cmax,
-            colorbar=dict(
-                thickness=15,
-                title=legend_title,
-                xanchor='left',
-                titleside='right'
-            ),
-            line_width=2),
-        text=node_text,
-        hoverinfo='text')
-
-    axis = dict(showbackground=False,
-                showline=False,
-                zeroline=False,
-                showgrid=False,
-                showticklabels=False,
-                title='')
-
-    layout = go.Layout(
-        title="",
-        width=1000,
-        height=1000,
-        showlegend=False,
-        scene=dict(xaxis=dict(axis),
-                   yaxis=dict(axis),
-                   zaxis=dict(axis)),
-        margin=dict(
-            t=100
-        ),
-        hovermode='closest',
-        annotations=[])
-
-    data = [edge_trace, node_trace]
-    fig = go.Figure(data=data, layout=layout)
-
-    fig.show()
+    return get_county_plot(
+        fips=fips, values=county_color,
+        colorscale=[f'rgb{rgb}' for rgb in list(colorscale.values())])
