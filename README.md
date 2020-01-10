@@ -1,6 +1,6 @@
 <img src="https://www.giotto.ai/static/vector/logo.svg" alt="logo" width="850"/>
 
-# us-election-tda
+# Discovering hidden socio-economic voting patterns in the US thanks to Giotto-Mapper
 
 Want to dive right in? Go directly to the [Getting started](#getting-started) section!
 
@@ -28,22 +28,62 @@ When combined with election results, we find that in 2016, the high per capita r
 
 __1. Linux / MacOS__
 
-If you have `pip` installed, it suffices to run the following commands in a terminal:
+If you have `pip` and [anaconda](https://anaconda.org) installed, it suffices to run the following commands in a terminal:
 
 ```console
-virtualenv -p python3.7 env
-source PATH_TO_ENV/bin/activate
+conda create --name mapper python=3.7 && conda activate mapper
+conda install jupyter -y
 pip install -r requirements.txt
 pip install python-igraph
 ```
 
 __2. Windows__
 
-You first have to download from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-igraph) the binary wheel corresponding to your Python version and architecture. Then, you need to run the following commands in a terminal:
+You first have to download from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#python-igraph) the wheel corresponding to your Python version and architecture. Then, you need to run the following commands in a terminal:
 
 ```console
-virtualenv -p python3.7 env
-PATH_TO_ENV\Scripts\activate
+conda create --name mapper python=3.7 && conda activate mapper
+conda install jupyter -y
 pip install -r requirements.txt
 pip install python_igraph‑0.7.1.post6‑cp{YOUR_PYTHON_VERSION}‑cp{YOUR_PYTHON_VERSION}‑win_amd64.whl
 ```
+
+## JupyterLab setup
+
+To see the Plotly graphs in JupyterLab, some [extra steps](https://github.com/plotly/plotly.py) are required:
+
+__1. Linux / MacOS__
+
+```bash
+# Avoid "JavaScript heap out of memory" errors during extension installation
+export NODE_OPTIONS=--max-old-space-size=4096
+# Jupyter widgets extension
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 --no-build
+# FigureWidget support
+jupyter labextension install plotlywidget@1.4.0 --no-build
+# and jupyterlab renderer support
+jupyter labextension install jupyterlab-plotly@1.4.0 --no-build
+# Build extensions (must be done to activate extensions since --no-build is used above)
+jupyter lab build
+# Unset NODE_OPTIONS environment variable
+unset NODE_OPTIONS
+```
+
+__2. Windows__
+
+```bash
+# Avoid "JavaScript heap out of memory" errors during extension installation
+set NODE_OPTIONS=--max-old-space-size=4096
+# Jupyter widgets extension
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@1.1 --no-build
+# FigureWidget support
+jupyter labextension install plotlywidget@1.4.0 --no-build
+# and jupyterlab renderer support
+jupyter labextension install jupyterlab-plotly@1.4.0 --no-build
+# Build extensions (must be done to activate extensions since --no-build is used above)
+jupyter lab build
+# Unset NODE_OPTIONS environment variable
+set NODE_OPTIONS=
+```
+
+After running these steps, deactivate and reactivate your conda environment before spinning up JupyterLab.
