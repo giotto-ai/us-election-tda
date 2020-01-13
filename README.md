@@ -1,6 +1,6 @@
 <img src="https://www.giotto.ai/static/vector/logo.svg" alt="logo" width="850"/>
 
-# Discovering hidden socio-economic voting patterns in the US thanks to Giotto-Mapper
+# The shape of the United States presidential elections
 
 The accompanying blog post can be found [here](https://towardsdatascience.com/the-shape-of-the-united-states-presidential-elections-c336d80e4ddf) .
 
