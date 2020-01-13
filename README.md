@@ -2,11 +2,14 @@
 
 # Discovering hidden socio-economic voting patterns in the US thanks to Giotto-Mapper
 
-Want to dive right in? Go directly to the [Getting started](#getting-started) section!
+The accompanying blog post can be found [here](https://towardsdatascience.com/the-shape-of-the-united-states-presidential-elections-c336d80e4ddf) .
+
+Want to dive right in? Find the accompanying blog post Go directly to the [Getting started](#getting-started) section!
 
 ## What it is
 
 A guide on how to gain insight in socio-economic and election data of U.S. counties using the Mapper algorithm implemented in [Giotto-learn](https://github.com/giotto-ai/giotto-learn).
+See the accompanying [blog post](https://towardsdatascience.com/the-shape-of-the-united-states-presidential-elections-c336d80e4ddf) for further details.
 
 ## Data
 
