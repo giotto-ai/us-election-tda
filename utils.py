@@ -8,7 +8,7 @@ import pandas as pd
 
 def get_cols_by_type():
     '''Function to get different columns
-    
+
     Parameters
     ----------
 
@@ -67,13 +67,13 @@ def get_cols_for_mapper():
     the mapper were found by comparing the distribution of each column between
     the different election years. The ones differing throughout the years are
     selected (selection was made by eye)
-        
+
     Parameters
     ----------
 
     Returns
     -------
-    cols : list 
+    cols : list
         List of columns used for Mapper algorithm
     '''
 
@@ -128,12 +128,12 @@ def get_data(df):
 
 def split_data_by_year(data, df):
     '''Function to split entire data into different election years.
-    
+
     Parameters
     ----------
     data : ndarray (n_samples x n_dim)
         Mapper input
-    df : pandas data frame 
+    df : pandas data frame
         Data frame of entire data
 
     Returns
@@ -217,7 +217,7 @@ def get_n_electors(node_elements, n_electors):
     node_elements : tuple
         Tuple of arrays where array at positin x contains the data points for
         node x
-    n_electors : pandas series 
+    n_electors : pandas series
         Pandas series of number of weighted electors per county
 
     Returns
@@ -239,7 +239,7 @@ def get_node_text(node_elements, n_electors, node_color, label):
     node_elements : tuple
         Tuple of arrays where array at positin x contains the data points for
         node x
-    n_electors : pandas series 
+    n_electors : pandas series
         Pandas series of number of weighted electors per county
     node_color : list
         List of node colors
