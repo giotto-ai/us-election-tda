@@ -6,6 +6,26 @@ import matplotlib.colors
 import pandas as pd
 
 
+def get_reference_layout(figure):
+    return [{c_x: figure._data[idc][c_x] for c_x in ['x', 'y']} for idc, c in enumerate(['lines', 'edges'])]
+
+def get_filtered_values(v, indices):
+    """Copy v and put NaNs in indices
+    Parameters
+    ----------
+    v : ndarray,
+
+    indices : list or iterable of indices, for which the value should be set to NaN
+
+    Returns
+    -------
+    v_  : a copy of v, with NaNs at indices given by `indices`
+    """
+    v_ = v.copy()
+    v_[indices] = np.NaN
+    return v_
+
+
 def get_cols_by_type():
     '''Function to get different columns
 
