@@ -2,25 +2,23 @@ import plotly.figure_factory as ff
 import utils
 import itertools
 import collections
-from giotto.mapper import visualization
+from gtda.mapper import plot_static_mapper_graph
 import numpy as np
 
 
-def get_region_plot(graph, data, layout, columns_to_color, node_elements,
+def get_region_plot(pipe, data, layout, node_elements,
                     colorscale):
     '''Function to generate a figure of the mapper graph colored by identified
     regions
     
     Parameters
     ----------
-    graph : igraph object
-        Mapper graph
+    pipe : MapperPipeline
+        The Mapper pipeline to compute the mapper-graph
     data : ndarray (n_samples x n_dim)
         Data used for mapper
     layout : igraph.layout.Layout
         Layout of graph
-    columns_to_color : list
-        List of columns to color by
     node_elements : tuple
         Tuple of arrays where array at positin x contains the data points for
         node x
@@ -41,58 +39,63 @@ def get_region_plot(graph, data, layout, columns_to_color, node_elements,
     # 4. sort values by keys
     # 5. convert to ordered dictionary
     # 6. extract values and convert to list
-    node_color = list(
+    node_color = np.array(list(
         collections.OrderedDict(
             sorted(itertools.chain(
                 *map(list,
                      [zip(regions[region],
                           itertools.repeat(colorscale[region]))
-                      for region in range(len(regions))])))).values())
-
+                      for region in range(len(regions))])))).values()))
     # set plotly arguments:
     # 1. set uniform node size
     # 2. hide scale of marker color
     plotly_kwargs = {
         'node_trace_marker_size': [1] * len(node_elements),
-        'node_trace_marker_showscale': False}
+        'node_trace_marker_showscale': False,
+        'node_trace_hoverlabel': node_color,
+        'node_trace_marker_color': node_color
+    }
+    
+    fig = plot_static_mapper_graph(pipe, data,
+                                   layout, layout_dim=2,
+                                   color_by_columns_dropdown=False,
+                                   plotly_kwargs=plotly_kwargs)
+    # update colors to fig
+    fig._data[1]['marker']['color'] = node_color # hack around with the new api
+    return fig
 
-    return visualization.create_network_2d(graph, data, layout, node_color,
-                                           columns_to_color=columns_to_color,
-                                           plotly_kwargs=plotly_kwargs)
 
-
-def get_graph_plot_colored_by_election_results(graph, year, df, data,
-                                               layout=None):
+def get_graph_plot_colored_by_election_results(pipeline, year, df, data, keep_layout):
     '''Function make plot of US with counties colored by winner of election
     
     Parameters
     ----------
-    graph : igraph object
-        Mapper graph
+    pipe : MapperPipeline
+        The Mapper pipeline to compute the mapper-graph
+    year : np.int
+        Color by election results from year `year`
     df : pandas data frame
         Data frame containing info of winner per county, year of election and
         number of electors in county
     data : ndarray (n_samples x n_dim)
         Data used for mapper
-    layout : igraph.layout.Layout (default: None)
-        Layout of graph
+    keep_layout : list of two dicts, with keys 'x', 'y', and such that values are 1d arrays
+        Positions of lines (keep_layout[0]) and markers respectively (keep_layout[1])
+        for the mapper graph
 
     Returns
     -------
     fig: igraph object
     '''
 
-    node_elements = graph['node_metadata']['node_elements']
-
-    if layout is None:
-        layout = graph.layout('kk', dim=2)
+    node_elements = pipeline.fit_transform(data)['node_metadata']['node_elements']
 
     # set node color to percentage of number of electors won by republicans
-    node_color = [
+    node_color = np.array([
         100 * (df[df['year'] == year]['winner'].values *
                df[df['year'] == year]['n_electors'].values)[x].sum() /
         df[df['year'] == year]['n_electors'].values[x].sum()
-        for x in node_elements]
+        for x in node_elements])
 
     data_cols = utils.get_cols_for_mapper()
     columns_to_color = dict(zip(data_cols, range(len(data_cols))))
@@ -121,9 +124,15 @@ def get_graph_plot_colored_by_election_results(graph, year, df, data,
                                       df[df['year'] == year]['n_electors']
                                       .reset_index(drop=True)))}
 
-    return visualization.create_network_2d(graph, data, layout, node_color,
-                                           columns_to_color=columns_to_color,
-                                           plotly_kwargs=plotly_kwargs)
+    fig = plot_static_mapper_graph(pipeline, data,
+                                   'kk', layout_dim=2,
+                                   node_color_statistic=node_color,
+                                   color_by_columns_dropdown=True,
+                                   plotly_kwargs=plotly_kwargs)
+    if keep_layout is not None:
+        fig._data[0].update(keep_layout[0])
+        fig._data[1].update(keep_layout[1])
+    return fig
 
 
 def get_county_plot(fips, values, colorscale=["#0000ff", "#ff0000"], title='',
